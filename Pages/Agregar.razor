@@ -1,0 +1,101 @@
+@page "/agregar"
+
+<PageTitle>Agregar</PageTitle>
+
+
+<h2><b>Agregar Accidente:</b></h2>
+<br>
+
+<EditForm Model="nuevoAccidente" OnValidSubmit="AgregarAccidente">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="Fecha"><b>Fecha:</b></label>
+        <InputDate @bind-Value="nuevoAccidente.Fecha" />
+    </div>
+
+    <br>
+
+    <div class="form-group">
+        <label for="Descripcion"><b>Descripción:</b></label>
+        <InputText @bind-Value="nuevoAccidente.Descripcion" />
+    </div>
+
+    <br>
+
+    <div class="form-group">
+        <label for="CostoEconomico"><b>Costo Económico:</b></label>
+        <InputNumber @bind-Value="nuevoAccidente.CostoEconomico" />
+    </div>
+
+    <br>
+
+    <div class="form-group">
+        <label for="Muertos"><b>Muertos:</b></label>
+        <InputNumber @bind-Value="nuevoAccidente.Muertos" />
+    </div>
+
+    <br>
+
+    <div class="form-group">
+        <label for="Heridos"><b>Heridos:</b></label>
+        <InputNumber @bind-Value="nuevoAccidente.Heridos" />
+    </div>
+
+    <br>
+
+    <div class="form-group">
+        <label for="CantidadVehiculos"><b>Cantidad de Vehículos:</b></label>
+        <InputNumber @bind-Value="nuevoAccidente.CantidadVehiculos" />
+    </div>
+
+    <br>
+    <button type="submit" class="btn btn-primary"><b>Registrar.</b></button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(mensajeConfirmacion))
+{
+    <p>@mensajeConfirmacion</p>
+}
+
+@code {
+    private Accidente nuevoAccidente = new Accidente();
+    private List<Accidente> listaAccidentes = new List<Accidente>();
+    private AccidenteService accidenteService = new AccidenteService();
+
+    private string mensajeConfirmacion = "";
+
+    private void AgregarAccidente()
+    {
+        listaAccidentes.Add(nuevoAccidente);
+        accidenteService.GuardarAccidentes(listaAccidentes);
+        nuevoAccidente = new Accidente();
+
+        mensajeConfirmacion = "Accidente registrado correctamente.";
+    }
+
+    public class AccidenteService
+    {
+        private readonly string filePath = "accidentes.json";
+
+        public List<Accidente> CargarAccidentes()
+        {
+            if (File.Exists(filePath))
+            {
+                var json = File.ReadAllText(filePath);
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<List<Accidente>>(json);
+            }
+            else
+            {
+                return new List<Accidente>();
+            }
+        }
+        public void GuardarAccidentes(List<Accidente> accidentes)
+        {
+            var listaActual = CargarAccidentes();
+            listaActual.AddRange(accidentes);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(listaActual);
+            File.WriteAllText(filePath, json);
+        }
+    }
+}
