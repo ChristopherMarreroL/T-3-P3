@@ -1,0 +1,68 @@
+@page "/ver"
+
+<PageTitle>Ver</PageTitle>
+
+<h2><b>Aqui vamos a visualizar los Accidentes Registrados:</b></h2>
+<br>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Descripcion</th>
+            <th>Costo Economico</th>
+            <th>Muertos</th>
+            <th>Heridos</th>
+            <th>Cantidad de Vehiculos</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var accidente in listaAccidentes)
+        {
+            <tr>
+                <td>@accidente.Fecha.ToShortDateString()</td>
+                <td>@accidente.Descripcion</td>
+                <td>@accidente.CostoEconomico</td>
+                <td>@accidente.Muertos</td>
+                <td>@accidente.Heridos</td>
+                <td>@accidente.CantidadVehiculos</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br>
+<h2><b>Reportes:</b></h2>
+<br>
+<p><b>Total de accidentes:</b> @listaAccidentes.Count().</p>
+<p><b>Total de Vehiculos involucrados:</b> @listaAccidentes.Sum(accidente => accidente.CantidadVehiculos)</p>
+<p><b>Total de muertos:</b> @listaAccidentes.Sum(accidente => accidente.Muertos)</p>
+<p><b>Total de muertos:</b> @listaAccidentes.Sum(accidente => accidente.Heridos)</p>
+
+@code
+{
+    private List<Accidente> listaAccidentes = new List<Accidente>();
+
+        protected override void OnInitialized()
+        {
+            var accidenteService = new AccidenteService();
+            listaAccidentes = accidenteService.CargarAccidentes();
+        }
+
+        public class AccidenteService{
+            private readonly string filePath = "accidentes.json";
+
+            public List<Accidente> CargarAccidentes()
+            {
+                if(File.Exists(filePath))
+                {
+                    var json = File.ReadAllText(filePath);
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<List<Accidente>>(json);
+                }
+                else
+                {
+                    return new List<Accidente>();
+                }
+            }
+        }
+}
